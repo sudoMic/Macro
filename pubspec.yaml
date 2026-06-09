@@ -1,0 +1,50 @@
+name: macro
+description: Personal macro and calorie tracker
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  provider: ^6.1.2
+
+  # Persistenza preferenze
+  shared_preferences: ^2.3.2
+
+  # Backup/restore DB
+  share_plus: ^10.0.0
+
+  # Barcode scanning
+  mobile_scanner: ^5.2.3
+
+  # HTTP requests
+  http: ^1.2.1
+
+  # Local database
+  sqflite: ^2.3.3+1
+  sqflite_common_ffi: ^2.3.4+1
+  path: ^1.9.0
+
+  # UI
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/chicken-leg.png
+    - assets/gym.png
+    - assets/settings.png
+    - assets/photo-gallery.png
+    - assets/recipe.png
+    - assets/statistic.png
