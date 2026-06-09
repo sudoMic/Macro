@@ -1,17 +1,118 @@
-# macro
+# Macro
 
-A new Flutter project.
+App Flutter open source per tracciare calorie, macronutrienti e allenamenti. Nessun abbonamento, nessun account, tutto salvato localmente sul dispositivo.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## Funzionalità
 
-A few resources to get you started if this is your first Flutter project:
+### 🥗 Diario alimentare
+- Aggiunta alimenti tramite **scansione barcode** (Open Food Facts)
+- **Ricerca per nome** con suggerimenti automatici
+- Scelta dalla **dispensa personale** di alimenti salvati
+- Selezione grammi con chip preimpostati (50/100/150/200g) o valore custom
+- Totali giornalieri di kcal, carboidrati, proteine e grassi
+- Suddivisione per pasto: Colazione, Pranzo, Cena, Spuntino
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+### 🏋️ Workout
+- Creazione di piani di allenamento personalizzati (es. Gambe, Upper, Full Body)
+- Lista esercizi predefiniti per categoria + possibilità di aggiungerne custom
+- Sessioni di allenamento con tracciamento serie × rip × peso
+- **Timer di recupero** integrato nella scheda esercizio con pausa e reset
+- **PR automatico** — l'app rileva quando batti il tuo massimo storico
+- Storico sessioni con grafico del peso per set
+- Drag & drop per riordinare i workout
+- Storico consultabile per ogni piano
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### ⚙️ Impostazioni
+- Tema chiaro / scuro / sistema
+- Tempo di recupero personalizzabile
+- **Backup e ripristino** del database locale
+
+---
+
+## Stack tecnico
+
+| Componente | Tecnologia |
+|---|---|
+| Framework | Flutter |
+| State management | Provider |
+| Database locale | SQLite (sqflite + sqflite_common_ffi) |
+| Barcode scanning | mobile_scanner |
+| Dati nutrizionali | Open Food Facts API |
+| Preferenze | shared_preferences |
+| Backup/share | share_plus |
+
+---
+
+## Installazione
+
+### Requisiti
+- Flutter SDK ≥ 3.0.0
+- Android SDK compileSdk 36
+
+### Build
+
+```bash
+git clone https://github.com/sudoMic/Macro.git
+cd Macro
+flutter pub get
+flutter run                        # debug su dispositivo collegato
+flutter build apk --release        # APK release
+```
+
+L'APK si trova in:
+```
+build/app/outputs/flutter-apk/app-release.apk
+```
+
+---
+
+## Struttura del progetto
+
+```
+lib/
+├── main.dart
+├── models/
+│   ├── product.dart
+│   ├── diary_entry.dart
+│   ├── recipe.dart
+│   ├── workout.dart
+│   └── predefined_exercises.dart
+├── services/
+│   ├── database_service.dart
+│   └── open_food_facts_service.dart
+├── providers/
+│   ├── diary_provider.dart
+│   ├── workout_provider.dart
+│   └── theme_provider.dart
+└── screens/
+    ├── main_screen.dart
+    ├── diary_screen.dart
+    ├── scanner_screen.dart
+    ├── add_entry_screen.dart
+    ├── manual_entry_screen.dart
+    ├── food_search_screen.dart
+    ├── saved_products_screen.dart
+    ├── pick_from_pantry_screen.dart
+    ├── product_detail_screen.dart
+    ├── workout_screen.dart
+    ├── workout_plan_screen.dart
+    ├── workout_exercises_screen.dart
+    ├── active_session_screen.dart
+    ├── exercise_detail_screen.dart
+    ├── workout_history_screen.dart
+    └── settings_screen.dart
+```
+
+---
+
+## Dati e privacy
+
+Tutti i dati rimangono sul dispositivo. L'app non richiede account, non invia dati a server esterni ad eccezione delle chiamate a Open Food Facts per il lookup dei prodotti tramite barcode o ricerca testuale.
+
+---
+
+## Licenza
+
+MIT
