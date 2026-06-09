@@ -1,6 +1,6 @@
 # Macro
 
-App Flutter open source per tracciare calorie, macronutrienti e allenamenti. Nessun abbonamento, nessun account, tutto salvato localmente sul dispositivo.
+App per tracciare calorie, macronutrienti e allenamenti. Nessun abbonamento, nessun account, tutto salvato localmente sul dispositivo.
 
 ---
 
@@ -110,9 +110,3 @@ lib/
 ## Dati e privacy
 
 Tutti i dati rimangono sul dispositivo. L'app non richiede account, non invia dati a server esterni ad eccezione delle chiamate a Open Food Facts per il lookup dei prodotti tramite barcode o ricerca testuale.
-
----
-
-## Licenza
-
-MIT
