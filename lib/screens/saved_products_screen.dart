@@ -161,7 +161,7 @@ class _SavedProductsScreenState extends State<SavedProductsScreen> {
                               MaterialPageRoute(
                                 builder: (_) => ProductDetailScreen(product: product),
                               ),
-                            ),
+                            ).then((_) => _load()), // ricarica dopo modifica
                           );
                         },
                       ),

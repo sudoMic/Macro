@@ -7,10 +7,12 @@ class ThemeProvider extends ChangeNotifier {
 
   ThemeMode _themeMode = ThemeMode.light;
   int _restSeconds = 120;
+  bool _autoStartTimer = true;
 
   ThemeMode get themeMode => _themeMode;
   bool get isDark => _themeMode == ThemeMode.dark;
   int get restSeconds => _restSeconds;
+  bool get autoStartTimer => _autoStartTimer;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -21,6 +23,7 @@ class ThemeProvider extends ChangeNotifier {
       _ => ThemeMode.light,
     };
     _restSeconds = prefs.getInt(_keyRest) ?? 120;
+    _autoStartTimer = prefs.getBool('auto_start_timer') ?? true;
     notifyListeners();
   }
 
@@ -39,6 +42,13 @@ class ThemeProvider extends ChangeNotifier {
     _restSeconds = seconds.clamp(10, 600);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_keyRest, _restSeconds);
+    notifyListeners();
+  }
+
+  Future<void> setAutoStartTimer(bool value) async {
+    _autoStartTimer = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auto_start_timer', value);
     notifyListeners();
   }
 }

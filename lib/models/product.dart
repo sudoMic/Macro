@@ -1,4 +1,3 @@
-/// Rappresenta un prodotto alimentare con i suoi valori nutrizionali per 100g.
 class Product {
   final String barcode;
   final String name;
@@ -9,6 +8,7 @@ class Product {
   final double fats;
   final double? fiber;
   final double? sugars;
+  final double? salt;
 
   const Product({
     required this.barcode,
@@ -20,9 +20,9 @@ class Product {
     required this.fats,
     this.fiber,
     this.sugars,
+    this.salt,
   });
 
-  /// Crea un Product dal JSON di Open Food Facts.
   factory Product.fromOpenFoodFacts(Map<String, dynamic> json) {
     final product = json['product'] as Map<String, dynamic>? ?? {};
     final nutriments = product['nutriments'] as Map<String, dynamic>? ?? {};
@@ -37,10 +37,10 @@ class Product {
       fats: parseDouble(nutriments['fat_100g']),
       fiber: parseDoubleOrNull(nutriments['fiber_100g']),
       sugars: parseDoubleOrNull(nutriments['sugars_100g']),
+      salt: parseDoubleOrNull(nutriments['salt_100g']),
     );
   }
 
-  /// Crea un Product da una riga del database locale.
   factory Product.fromDb(Map<String, dynamic> row) {
     return Product(
       barcode: row['barcode'] as String,
@@ -52,6 +52,7 @@ class Product {
       fats: row['fats'] as double,
       fiber: row['fiber'] as double?,
       sugars: row['sugars'] as double?,
+      salt: row['salt'] as double?,
     );
   }
 
@@ -65,9 +66,9 @@ class Product {
         'fats': fats,
         'fiber': fiber,
         'sugars': sugars,
+        'salt': salt,
       };
 
-  /// Calcola i macro per una quantità specifica in grammi.
   Product forGrams(double grams) {
     final ratio = grams / 100.0;
     return Product(
@@ -80,6 +81,7 @@ class Product {
       fats: fats * ratio,
       fiber: fiber != null ? fiber! * ratio : null,
       sugars: sugars != null ? sugars! * ratio : null,
+      salt: salt != null ? salt! * ratio : null,
     );
   }
 

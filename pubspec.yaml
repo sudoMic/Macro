@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # State management
   provider: ^6.1.2
@@ -18,7 +20,11 @@ dependencies:
   shared_preferences: ^2.3.2
 
   # Backup/restore DB
+  file_picker: ^10.0.0
   share_plus: ^10.0.0
+
+  # Schermo sempre acceso
+  wakelock_plus: ^1.2.10
 
   # Barcode scanning
   mobile_scanner: ^5.2.3
@@ -48,3 +54,4 @@ flutter:
     - assets/photo-gallery.png
     - assets/recipe.png
     - assets/statistic.png
+    - assets/schedule.png

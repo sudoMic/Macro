@@ -24,7 +24,7 @@ class DatabaseService {
     final path = join(dbPath, 'macro.db');
     return openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createTables,
       onUpgrade: _onUpgrade,
     );
@@ -41,6 +41,11 @@ class DatabaseService {
       await _createWorkoutTables(db);
       await _seedExercises(db);
     }
+    if (oldVersion < 3) {
+      try {
+        await db.execute('ALTER TABLE products ADD COLUMN salt REAL');
+      } catch (_) {}
+    }
   }
 
   Future<void> _createFoodTables(Database db) async {
@@ -54,7 +59,8 @@ class DatabaseService {
         proteins REAL NOT NULL,
         fats REAL NOT NULL,
         fiber REAL,
-        sugars REAL
+        sugars REAL,
+        salt REAL
       )
     ''');
     await db.execute('''
@@ -411,5 +417,94 @@ class DatabaseService {
       ORDER BY ws.date ASC, es.set_number ASC
     ''', [exerciseId]);
     return rows;
+  }
+
+  // ─── EXPORT / IMPORT ──────────────────────────────────────────────────────
+
+  /// Esporta i dati selezionati come Map JSON-serializzabile.
+  Future<Map<String, dynamic>> exportData({
+    bool products = true,
+    bool diary = true,
+    bool workouts = true,
+  }) async {
+    final d = await db;
+    final data = <String, dynamic>{
+      'version': 1,
+      'exported_at': DateTime.now().toIso8601String(),
+    };
+
+    if (products) {
+      data['products'] = await d.query('products');
+    }
+    if (diary) {
+      data['diary_entries'] = await d.query('diary_entries', orderBy: 'date ASC');
+    }
+    if (workouts) {
+      data['workout_plans'] = await d.query('workout_plans');
+      data['workout_plan_exercises'] = await d.query('workout_plan_exercises');
+      data['exercises_custom'] = await d.query('exercises', where: 'is_custom = 1');
+      data['workout_sessions'] = await d.query('workout_sessions', orderBy: 'date ASC');
+      data['session_exercises'] = await d.query('session_exercises');
+      data['exercise_sets'] = await d.query('exercise_sets');
+    }
+
+    return data;
+  }
+
+  /// Importa dati da un Map JSON. Usa INSERT OR REPLACE per non duplicare.
+  Future<void> importData(Map<String, dynamic> data) async {
+    final d = await db;
+
+    await d.transaction((txn) async {
+      if (data.containsKey('products')) {
+        for (final row in (data['products'] as List)) {
+          await txn.insert('products', Map<String, dynamic>.from(row),
+              conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+      if (data.containsKey('diary_entries')) {
+        for (final row in (data['diary_entries'] as List)) {
+          final r = Map<String, dynamic>.from(row)..remove('id');
+          await txn.insert('diary_entries', r,
+              conflictAlgorithm: ConflictAlgorithm.ignore);
+        }
+      }
+      if (data.containsKey('workout_plans')) {
+        for (final row in (data['workout_plans'] as List)) {
+          await txn.insert('workout_plans', Map<String, dynamic>.from(row),
+              conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+      if (data.containsKey('workout_plan_exercises')) {
+        for (final row in (data['workout_plan_exercises'] as List)) {
+          await txn.insert('workout_plan_exercises', Map<String, dynamic>.from(row),
+              conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+      if (data.containsKey('exercises_custom')) {
+        for (final row in (data['exercises_custom'] as List)) {
+          await txn.insert('exercises', Map<String, dynamic>.from(row),
+              conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+      if (data.containsKey('workout_sessions')) {
+        for (final row in (data['workout_sessions'] as List)) {
+          await txn.insert('workout_sessions', Map<String, dynamic>.from(row),
+              conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+      if (data.containsKey('session_exercises')) {
+        for (final row in (data['session_exercises'] as List)) {
+          await txn.insert('session_exercises', Map<String, dynamic>.from(row),
+              conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+      if (data.containsKey('exercise_sets')) {
+        for (final row in (data['exercise_sets'] as List)) {
+          await txn.insert('exercise_sets', Map<String, dynamic>.from(row),
+              conflictAlgorithm: ConflictAlgorithm.replace);
+        }
+      }
+    });
   }
 }

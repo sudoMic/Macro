@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:io';
 import 'services/database_service.dart';
 import 'providers/diary_provider.dart';
@@ -45,9 +46,29 @@ class MacroApp extends StatelessWidget {
             title: 'Macro',
             debugShowCheckedModeBanner: false,
             themeMode: tp.themeMode,
+            locale: const Locale('it'),
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('it')],
             theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.green.shade700),
               useMaterial3: true,
+              snackBarTheme: const SnackBarThemeData(
+                backgroundColor: Color(0xFF2E7D32), // green.shade800
+                contentTextStyle: TextStyle(color: Colors.white),
+                behavior: SnackBarBehavior.floating,
+              ),
+              dialogTheme: DialogThemeData(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              filledButtonTheme: FilledButtonThemeData(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF2E7D32),
+                ),
+              ),
             ),
             darkTheme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
@@ -55,6 +76,19 @@ class MacroApp extends StatelessWidget {
                 brightness: Brightness.dark,
               ),
               useMaterial3: true,
+              snackBarTheme: const SnackBarThemeData(
+                backgroundColor: Color(0xFF2E7D32),
+                contentTextStyle: TextStyle(color: Colors.white),
+                behavior: SnackBarBehavior.floating,
+              ),
+              dialogTheme: DialogThemeData(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              filledButtonTheme: FilledButtonThemeData(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF2E7D32),
+                ),
+              ),
             ),
             home: const MainScreen(),
           );

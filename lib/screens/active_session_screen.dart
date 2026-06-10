@@ -15,12 +15,18 @@ class ActiveSessionScreen extends StatefulWidget {
 
 class _ActiveSessionScreenState extends State<ActiveSessionScreen> {
 
-  Future<void> _openExercise(SessionExercise se) async {
+  Future<void> _openExercise(SessionExercise se, List<SessionExercise> exercises) async {
+    final index = exercises.indexWhere((e) => e.id == se.id);
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => ExerciseDetailScreen(sessionExercise: se)),
+      MaterialPageRoute(
+        builder: (_) => ExerciseDetailScreen(
+          sessionExercise: se,
+          allExercises: exercises,
+          currentIndex: index,
+        ),
+      ),
     );
-    // Marca come completato SOLO se ha almeno 1 serie
     final provider = context.read<WorkoutProvider>();
     final updated = provider.activeSession?.exercises
         .firstWhere((e) => e.id == se.id, orElse: () => se);
@@ -117,7 +123,7 @@ class _ActiveSessionScreenState extends State<ActiveSessionScreen> {
                           ? Text('max ${maxWeight.toStringAsFixed(1)} kg')
                           : const Text('Nessuna serie'),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _openExercise(se),
+                      onTap: () => _openExercise(se, exercises),
                     );
                   },
                 ),

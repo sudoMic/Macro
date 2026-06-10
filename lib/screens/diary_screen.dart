@@ -6,6 +6,7 @@ import 'saved_products_screen.dart';
 import 'settings_screen.dart';
 import 'pick_from_pantry_screen.dart';
 import 'food_search_screen.dart';
+import 'diary_entry_detail_screen.dart';
 
 class DiaryScreen extends StatefulWidget {
   const DiaryScreen({super.key});
@@ -21,6 +22,17 @@ class _DiaryScreenState extends State<DiaryScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<DiaryProvider>().loadDate(DateTime.now());
     });
+  }
+
+  Future<void> _changeDate() async {
+    final provider = context.read<DiaryProvider>();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: provider.selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) await provider.loadDate(picked);
   }
 
   void _showAddOptions() {
@@ -68,6 +80,11 @@ class _DiaryScreenState extends State<DiaryScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: Image.asset('assets/schedule.png', width: 26),
+            tooltip: 'Cambia data',
+            onPressed: _changeDate,
+          ),
           IconButton(
             icon: Image.asset('assets/chicken-leg.png', width: 26),
             tooltip: 'I miei alimenti',
@@ -196,6 +213,9 @@ class _MealSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mealKcal = entries.fold(0.0, (s, e) => s + e.kcal);
+    final mealCarbs = entries.fold(0.0, (s, e) => s + e.carbs);
+    final mealProteins = entries.fold(0.0, (s, e) => s + e.proteins);
+    final mealFats = entries.fold(0.0, (s, e) => s + e.fats);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -205,8 +225,13 @@ class _MealSection extends StatelessWidget {
             children: [
               Text(meal, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               const Spacer(),
-              Text('${mealKcal.toStringAsFixed(0)} kcal',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+              Text(
+                '${mealKcal.toStringAsFixed(0)} kcal  '
+                'C:${mealCarbs.toStringAsFixed(0)} '
+                'P:${mealProteins.toStringAsFixed(0)} '
+                'G:${mealFats.toStringAsFixed(0)}',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
             ],
           ),
         ),
@@ -224,6 +249,12 @@ class _DiaryEntryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => DiaryEntryDetailScreen(entry: entry),
+        ),
+      ),
       title: Text(entry.productName, overflow: TextOverflow.ellipsis),
       subtitle: Text('${entry.grams.toStringAsFixed(0)}g'),
       trailing: Row(

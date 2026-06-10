@@ -20,22 +20,28 @@ class ManualEntryScreen extends StatefulWidget {
 class _ManualEntryScreenState extends State<ManualEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _brandController = TextEditingController();
   final _gramsController = TextEditingController(text: '100');
   final _kcalController = TextEditingController();
   final _carbsController = TextEditingController();
   final _proteinsController = TextEditingController();
   final _fatsController = TextEditingController();
+  final _fiberController = TextEditingController();
+  final _saltController = TextEditingController();
   String _selectedMeal = 'Pranzo';
   bool _isSaving = false;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _brandController.dispose();
     _gramsController.dispose();
     _kcalController.dispose();
     _carbsController.dispose();
     _proteinsController.dispose();
     _fatsController.dispose();
+    _fiberController.dispose();
+    _saltController.dispose();
     super.dispose();
   }
 
@@ -48,11 +54,13 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
     final product = Product(
       barcode: 'manual_${DateTime.now().millisecondsSinceEpoch}',
       name: _nameController.text.trim(),
-      brand: '',
+      brand: _brandController.text.trim(),
       kcal: double.tryParse(_kcalController.text) ?? 0,
       carbs: double.tryParse(_carbsController.text) ?? 0,
       proteins: double.tryParse(_proteinsController.text) ?? 0,
       fats: double.tryParse(_fatsController.text) ?? 0,
+      fiber: double.tryParse(_fiberController.text),
+      salt: double.tryParse(_saltController.text),
     );
 
     // Salva in cache SOLO se è modalità "salva in dispensa"
@@ -90,6 +98,15 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
               textCapitalization: TextCapitalization.sentences,
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? 'Campo obbligatorio' : null,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _brandController,
+              decoration: const InputDecoration(
+                labelText: 'Marca',
+                border: OutlineInputBorder(),
+              ),
+              textCapitalization: TextCapitalization.sentences,
             ),
             const SizedBox(height: 12),
 
@@ -142,6 +159,10 @@ class _ManualEntryScreenState extends State<ManualEntryScreen> {
             _MacroField(controller: _proteinsController, label: 'Proteine (g)', color: Colors.red),
             const SizedBox(height: 10),
             _MacroField(controller: _fatsController, label: 'Grassi (g)', color: Colors.yellow[700]!),
+            const SizedBox(height: 10),
+            _MacroField(controller: _fiberController, label: 'Fibre (g)', color: Colors.green),
+            const SizedBox(height: 10),
+            _MacroField(controller: _saltController, label: 'Sale (g)', color: Colors.blueGrey),
             const SizedBox(height: 24),
 
             SizedBox(
