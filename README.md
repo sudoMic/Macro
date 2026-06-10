@@ -6,7 +6,7 @@ App per tracciare calorie, macronutrienti e allenamenti. Nessun account, tutto s
 
 ## Funzionalità
 
-###  Diario alimentare
+### Diario alimentare
 - Aggiunta alimenti tramite **scansione barcode** (Open Food Facts)
 - **Ricerca per nome** con suggerimenti automatici
 - Scelta dalla **dispensa personale** di alimenti salvati
@@ -16,7 +16,7 @@ App per tracciare calorie, macronutrienti e allenamenti. Nessun account, tutto s
 - Navigazione tra date passate tramite calendario
 - Dettaglio alimento con valori nutrizionali completi (kcal, carbo, proteine, grassi, fibre, zuccheri, sale)
 
-###  Workout
+### Workout
 - Creazione di piani di allenamento personalizzati (es. Gambe, Upper, Full Body)
 - Lista esercizi predefiniti per categoria + possibilità di aggiungerne custom
 - Sessioni di allenamento con tracciamento serie × rip × peso
@@ -28,7 +28,7 @@ App per tracciare calorie, macronutrienti e allenamenti. Nessun account, tutto s
 - Drag & drop per riordinare i workout
 - Storico consultabile per ogni piano
 
-###  Impostazioni
+### Impostazioni
 - Tema chiaro / scuro / sistema
 - Tempo di recupero personalizzabile (30s → 5min)
 - Avvio timer automatico on/off
