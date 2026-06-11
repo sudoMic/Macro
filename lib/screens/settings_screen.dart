@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import '../providers/theme_provider.dart';
+import '../providers/workout_provider.dart';
 import '../services/database_service.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -196,6 +197,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final data = jsonDecode(content) as Map<String, dynamic>;
         final db = context.read<DatabaseService>();
         await db.importData(data);
+        // Ricarica il provider workout per mostrare subito i dati importati
+        if (mounted && context.mounted) {
+          await context.read<WorkoutProvider>().loadPlans();
+        }
         _showSnack('Dati importati con successo.');
       } else {
         _showSnack('Formato non supportato. Usa .db o .json');

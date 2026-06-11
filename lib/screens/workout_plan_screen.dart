@@ -15,11 +15,13 @@ class WorkoutPlanScreen extends StatefulWidget {
 class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
   List<Exercise> _allExercises = [];
   List<Exercise> _filtered = [];
+  List<Exercise> _planExercises = []; // lista locale — non modifica widget.plan
   final _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _planExercises = List.from(widget.plan.exercises);
     _loadExercises();
     _searchController.addListener(() {
       final q = _searchController.text.toLowerCase();
@@ -46,7 +48,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
   }
 
   bool _isInPlan(Exercise ex) =>
-      widget.plan.exercises.any((e) => e.id == ex.id);
+      _planExercises.any((e) => e.id == ex.id);
 
   Future<void> _toggleExercise(Exercise ex) async {
     final db = context.read<DatabaseService>();
@@ -54,15 +56,13 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
     if (_isInPlan(ex)) {
       await db.removeExerciseFromPlan(widget.plan.id!, ex.id!);
     } else {
-      await db.addExerciseToPlan(
-          widget.plan.id!, ex, widget.plan.exercises.length);
+      await db.addExerciseToPlan(widget.plan.id!, ex, _planExercises.length);
     }
     await provider.loadPlans();
-    // Aggiorna il piano locale
     final updated = provider.plans.firstWhere((p) => p.id == widget.plan.id);
-    setState(() => widget.plan.exercises
-      ..clear()
-      ..addAll(updated.exercises));
+    setState(() {
+      _planExercises = List.from(updated.exercises);
+    });
   }
 
   Future<void> _addCustomExercise() async {
@@ -126,7 +126,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final inPlan = widget.plan.exercises;
+    final inPlan = _planExercises;
 
     return Scaffold(
       appBar: AppBar(

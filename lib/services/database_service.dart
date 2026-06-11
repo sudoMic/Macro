@@ -24,7 +24,7 @@ class DatabaseService {
     final path = join(dbPath, 'macro.db');
     return openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createTables,
       onUpgrade: _onUpgrade,
     );
@@ -45,6 +45,16 @@ class DatabaseService {
       try {
         await db.execute('ALTER TABLE products ADD COLUMN salt REAL');
       } catch (_) {}
+    }
+    if (oldVersion < 4) {
+      // Elimina duplicati in workout_plan_exercises tenendo solo il primo per coppia
+      await db.execute('''
+        DELETE FROM workout_plan_exercises
+        WHERE id NOT IN (
+          SELECT MIN(id) FROM workout_plan_exercises
+          GROUP BY workout_plan_id, exercise_id
+        )
+      ''');
     }
   }
 
@@ -318,6 +328,11 @@ class DatabaseService {
 
   Future<void> addExerciseToPlan(int planId, Exercise exercise, int order) async {
     final d = await db;
+    // Controlla se esiste già prima di inserire
+    final existing = await d.query('workout_plan_exercises',
+        where: 'workout_plan_id = ? AND exercise_id = ?',
+        whereArgs: [planId, exercise.id ?? 0]);
+    if (existing.isNotEmpty) return; // già presente, non duplicare
     await d.insert('workout_plan_exercises', {
       'workout_plan_id': planId,
       'exercise_id': exercise.id ?? 0,
@@ -337,13 +352,24 @@ class DatabaseService {
 
   Future<int> startSession(WorkoutPlan plan) async {
     final d = await db;
+    // Ricarica gli esercizi del piano direttamente dal DB per evitare dati in cache errati
+    final exRows = await d.query('workout_plan_exercises',
+        where: 'workout_plan_id = ?',
+        whereArgs: [plan.id],
+        orderBy: 'sort_order ASC');
+    final exercises = exRows.map((r) => Exercise(
+      id: r['exercise_id'] as int,
+      name: r['exercise_name'] as String,
+      category: '',
+    )).toList();
+
     return d.transaction((txn) async {
       final sessionId = await txn.insert('workout_sessions', {
         'workout_plan_id': plan.id ?? 0,
         'workout_name': plan.name,
         'date': DateTime.now().toIso8601String().substring(0, 10),
       });
-      for (final ex in plan.exercises) {
+      for (final ex in exercises) {
         await txn.insert('session_exercises', {
           'session_id': sessionId,
           'exercise_id': ex.id ?? 0,
@@ -451,7 +477,7 @@ class DatabaseService {
     return data;
   }
 
-  /// Importa dati da un Map JSON. Usa INSERT OR REPLACE per non duplicare.
+  /// Importa dati da un Map JSON. Elimina i dati esistenti prima di inserire per evitare duplicati.
   Future<void> importData(Map<String, dynamic> data) async {
     final d = await db;
 
@@ -470,6 +496,14 @@ class DatabaseService {
         }
       }
       if (data.containsKey('workout_plans')) {
+        // Elimina prima gli esercizi dei piani che verranno sovrascritti
+        for (final row in (data['workout_plans'] as List)) {
+          final planId = (row as Map)['id'];
+          if (planId != null) {
+            await txn.delete('workout_plan_exercises',
+                where: 'workout_plan_id = ?', whereArgs: [planId]);
+          }
+        }
         for (final row in (data['workout_plans'] as List)) {
           await txn.insert('workout_plans', Map<String, dynamic>.from(row),
               conflictAlgorithm: ConflictAlgorithm.replace);
@@ -489,12 +523,23 @@ class DatabaseService {
       }
       if (data.containsKey('workout_sessions')) {
         for (final row in (data['workout_sessions'] as List)) {
+          // Elimina session_exercises esistenti per questa sessione
+          final sessionId = (row as Map)['id'];
+          if (sessionId != null) {
+            await txn.delete('session_exercises',
+                where: 'session_id = ?', whereArgs: [sessionId]);
+          }
           await txn.insert('workout_sessions', Map<String, dynamic>.from(row),
               conflictAlgorithm: ConflictAlgorithm.replace);
         }
       }
       if (data.containsKey('session_exercises')) {
         for (final row in (data['session_exercises'] as List)) {
+          final seId = (row as Map)['id'];
+          if (seId != null) {
+            await txn.delete('exercise_sets',
+                where: 'session_exercise_id = ?', whereArgs: [seId]);
+          }
           await txn.insert('session_exercises', Map<String, dynamic>.from(row),
               conflictAlgorithm: ConflictAlgorithm.replace);
         }

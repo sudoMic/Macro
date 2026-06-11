@@ -61,6 +61,10 @@ class WorkoutProvider extends ChangeNotifier {
 
   Future<void> deletePlan(int id) async {
     await _db.deleteWorkoutPlan(id);
+    // Se la sessione attiva appartiene al piano eliminato, la azzera
+    if (_activeSession?.workoutPlanId == id) {
+      _activeSession = null;
+    }
     await loadPlans();
   }
 
